@@ -14,6 +14,21 @@ impl Default for Version {
     }
 }
 
+impl From<(u32, u32)> for Version {
+    fn from(value: (u32, u32)) -> Self {
+        Self(value.0, value.1)
+    }
+}
+
+impl TryFrom<f64> for Version {
+    type Error = ParseVersionError;
+
+    fn try_from(value: f64) -> Result<Self, Self::Error> {
+        let s = format!("HTTP/{}", value);
+        s.parse::<Version>()
+    }
+}
+
 impl std::fmt::Display for Version {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "HTTP/{}.{}", self.0, self.1)
@@ -24,6 +39,11 @@ impl std::str::FromStr for Version {
     type Err = ParseVersionError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        // If the version string can be parsed as a float, we can convert it to a Version using the TryFrom implementation
+        if let Ok(value) = s.parse::<f64>() {
+            return Self::try_from(value);
+        }
+
         if !s.starts_with("HTTP/") {
             return Err(ParseVersionError::InvalidPrefix(s.to_string()));
         }
@@ -170,5 +190,32 @@ mod tests {
             assert!(version.is_ok());
             assert_eq!(version.unwrap().to_string(), version_str);
         }
+    }
+
+    #[test]
+    fn should_pass_default_version() {
+        let default_version = Version::default();
+        assert_eq!(default_version.to_string(), "HTTP/0.9");
+    }
+
+    #[test]
+    fn should_convert_from_tuple() {
+        let version_tuple = (1, 1);
+        let version: Version = version_tuple.into();
+        assert_eq!(version.to_string(), "HTTP/1.1");
+    }
+
+    #[test]
+    fn should_convert_from_f64() {
+        let version_f64 = 1.1;
+        let version: Version = version_f64.try_into().unwrap();
+        assert_eq!(version.to_string(), "HTTP/1.1");
+    }
+
+    #[test]
+    fn should_convert_from_str_with_float() {
+        let version_str = "1.1";
+        let version: Version = version_str.parse().unwrap();
+        assert_eq!(version.to_string(), "HTTP/1.1");
     }
 }
