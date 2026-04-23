@@ -56,10 +56,10 @@ impl StatusLine {
 
 impl std::fmt::Display for StatusLine {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(
+        write!(
             f,
-            "{} {} {}",
-            self.version, self.status_code, self.reason_phrase
+            "{} {} {}{}",
+            self.version, self.status_code, self.reason_phrase, CRLF
         )
     }
 }
@@ -89,8 +89,9 @@ impl std::ops::DerefMut for Headers {
 impl std::fmt::Display for Headers {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for (key, value) in &self.0 {
-            writeln!(f, "{}: {}", key, value)?;
+            write!(f, "{}: {}{}", key, value, CRLF)?;
         }
+        write!(f, "{}", CRLF)?;
         Ok(())
     }
 }
@@ -112,7 +113,7 @@ impl Body {
 
 impl std::fmt::Display for Body {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
+        write!(f, "{}{}", self.0, CRLF)
     }
 }
 
@@ -154,10 +155,6 @@ impl Response {
 
 impl std::fmt::Display for Response {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}{}{}{}{}",
-            self.status_line, CRLF, self.headers, CRLF, self.body
-        )
+        write!(f, "{}{}{}", self.status_line, self.headers, self.body)
     }
 }
