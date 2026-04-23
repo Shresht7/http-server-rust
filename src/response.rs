@@ -10,18 +10,16 @@
 use std::collections::HashMap;
 
 use super::constants::CRLF;
+use super::http;
 
 // -----------
 // STATUS LINE
 // -----------
 
-/// The default HTTP version to use in the status line if not specified
-const DEFAULT_HTTP_VERSION: &str = "HTTP/1.1";
-
 /// Represents the status line of an HTTP response, containing the HTTP version, status code, and reason phrase.
 /// Example: `HTTP/1.1 200 OK`
 pub struct StatusLine {
-    version: String,
+    version: http::Version,
     status_code: u16,
     reason_phrase: String,
 }
@@ -29,7 +27,7 @@ pub struct StatusLine {
 impl Default for StatusLine {
     fn default() -> Self {
         Self {
-            version: DEFAULT_HTTP_VERSION.to_string(),
+            version: http::Version::default(),
             status_code: 200,
             reason_phrase: "OK".to_string(),
         }
@@ -38,9 +36,9 @@ impl Default for StatusLine {
 
 impl StatusLine {
     /// Creates a new `StatusLine` with the specified HTTP version, status code, and reason phrase.
-    fn new(version: &str, status_code: u16, reason_phrase: &str) -> Self {
+    fn new(version: http::Version, status_code: u16, reason_phrase: &str) -> Self {
         Self {
-            version: version.to_string(),
+            version,
             status_code,
             reason_phrase: reason_phrase.to_string(),
         }
