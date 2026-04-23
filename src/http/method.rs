@@ -6,6 +6,7 @@
 ///
 /// - See https://www.rfc-editor.org/rfc/rfc1945#section-5.1.1
 /// - See [RFC - Method Definitions](https://www.rfc-editor.org/rfc/rfc1945#section-8)
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Method {
     /// The GET method requests a representation of the specified resource. Requests using GET should only retrieve data.
     ///
@@ -69,6 +70,13 @@ pub enum Method {
     Other(String),
 }
 
+impl Method {
+    /// Return `true` if the method is not defined in the RFC.
+    pub fn is_unknown(&self) -> bool {
+        matches!(self, Method::Other(_))
+    }
+}
+
 impl<T: AsRef<str>> From<T> for Method {
     fn from(method: T) -> Self {
         match method.as_ref() {
@@ -89,5 +97,33 @@ impl<T: AsRef<str>> From<T> for Method {
 impl std::fmt::Display for Method {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.to_string())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_method_from_str() {
+        assert_eq!(Method::from("GET"), Method::GET);
+        assert_eq!(Method::from("POST"), Method::POST);
+        assert_eq!(Method::from("PUT"), Method::PUT);
+        assert_eq!(Method::from("DELETE"), Method::DELETE);
+        assert_eq!(Method::from("HEAD"), Method::HEAD);
+        assert_eq!(Method::from("OPTIONS"), Method::OPTIONS);
+        assert_eq!(Method::from("CONNECT"), Method::CONNECT);
+        assert_eq!(Method::from("TRACE"), Method::TRACE);
+        assert_eq!(Method::from("PATCH"), Method::PATCH);
+        assert_eq!(
+            Method::from("UNKNOWN"),
+            Method::Other("UNKNOWN".to_string())
+        );
+    }
+
+    #[test]
+    fn test_method_is_unknown() {
+        assert!(Method::Other("UNKNOWN".to_string()).is_unknown());
+        assert!(!Method::GET.is_unknown());
     }
 }
