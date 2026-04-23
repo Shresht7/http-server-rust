@@ -73,11 +73,16 @@ impl std::fmt::Display for StatusLine {
 #[derive(Default)]
 pub struct Headers(HashMap<String, String>);
 
-impl Headers {
-    /// Adds a header to the response with the specified key and value.
-    pub fn add(&mut self, key: &str, value: &str) -> &mut Self {
-        self.0.insert(key.to_string(), value.to_string());
-        self
+impl std::ops::Deref for Headers {
+    type Target = HashMap<String, String>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for Headers {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 
@@ -130,8 +135,9 @@ impl Response {
     }
 
     /// Adds a header to the response with the specified key and value.
-    pub fn header(mut self, key: &str, value: &str) -> Self {
-        self.headers.add(key, value);
+    pub fn header<T: AsRef<str>>(mut self, key: T, value: T) -> Self {
+        self.headers
+            .insert(key.as_ref().to_string(), value.as_ref().to_string());
         self
     }
 
