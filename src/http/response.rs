@@ -9,8 +9,8 @@
 
 use std::collections::HashMap;
 
-use super::constants::CRLF;
-use super::http;
+use crate::http;
+use crate::http::constants::CRLF;
 
 // -----------
 // STATUS LINE

@@ -2,10 +2,7 @@ use std::io::{self, BufRead, Write};
 use std::net;
 use std::process;
 
-mod constants;
 mod http;
-mod request;
-mod response;
 
 /// The network address host to listen on
 const ADDRESS_HOST: &str = "127.0.0.1";
@@ -53,7 +50,7 @@ fn handle_connection(mut stream: net::TcpStream) -> Result<(), io::Error> {
     println!("Full Request:\n{}", request_string);
 
     // Create a simple HTTP response
-    let response = response::Response::default()
+    let response = http::Response::default()
         .header("Content-Type", "text/html")
         .body("<html><body><h1>Hello, World!</h1></body></html>");
 

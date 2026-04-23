@@ -1,5 +1,5 @@
-use crate::constants::CRLF;
 use crate::http;
+use crate::http::constants::CRLF;
 
 // ------------
 // REQUEST LINE
