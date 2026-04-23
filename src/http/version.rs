@@ -6,6 +6,7 @@
 /// and the status line of [`Response`][crate::http::Response] structs.
 ///
 /// See: https://www.rfc-editor.org/rfc/rfc1945#section-3.1
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Version(u32, u32);
 
 impl Default for Version {
