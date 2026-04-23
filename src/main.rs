@@ -2,6 +2,9 @@ use std::io::{self, Write};
 use std::net;
 use std::process;
 
+mod constants;
+mod response;
+
 /// The network address host to listen on
 const ADDRESS_HOST: &str = "127.0.0.1";
 
@@ -30,23 +33,17 @@ fn run() -> io::Result<()> {
     Ok(())
 }
 
-/// Separator for HTTP response lines, consisting of a carriage return and line feed (`\r\n`)
-const CRLF: &str = "\r\n";
-
 fn handle_connection(mut stream: net::TcpStream) -> Result<(), io::Error> {
     let recv_addr = stream.local_addr()?;
     println!("Received connection from {}", recv_addr);
 
-    // HTTP Response is made up of three parts, each separated by a [CRLF](https://developer.mozilla.org/en-US/docs/Glossary/CRLF) (`\r\n`):
-    // 1. Status Line: Contains the HTTP version, status code, and reason phrase. Example: `HTTP/1.1 200 OK`
-    // 2. Headers: Key-value pairs that provide additional information about the response. Example: `Content-Type: text/html`
-    // 3. Body: (Optional) The actual content of the response, which can be HTML, JSON, or any other data format. Example: `<html><body><h1>Hello, World!</h1></body></html>`
+    // Create a simple HTTP response
+    let response = response::Response::default()
+        .header("Content-Type", "text/html")
+        .body("<html><body><h1>Hello, World!</h1></body></html>");
 
-    let status_line = "HTTP/1.1 200 OK\r\n";
-    let headers = "Content-Type: text/html\r\n\r\n";
-    let body = "<html><body><h1>Hello, World!</h1></body></html>";
-    let response = format!("{status_line}{CRLF}{headers}{CRLF}{CRLF}{body}");
-    stream.write_all(response.as_bytes())?;
+    // Send the response back to the client
+    stream.write_all(&response.as_bytes())?;
 
     Ok(())
 }
