@@ -4,6 +4,7 @@ use std::process;
 
 mod constants;
 mod http;
+mod request;
 mod response;
 
 /// The network address host to listen on
