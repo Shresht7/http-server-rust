@@ -13,6 +13,18 @@ impl QueryParams {
     }
 }
 
+impl std::fmt::Display for QueryParams {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let result = self
+            .params
+            .iter()
+            .map(|(key, value)| format!("{}={}", key, value))
+            .collect::<Vec<String>>()
+            .join("&");
+        write!(f, "?{}", result)
+    }
+}
+
 impl std::str::FromStr for QueryParams {
     type Err = ParseQueryParamError;
 
@@ -88,6 +100,16 @@ mod tests {
     use std::str::FromStr;
 
     use super::*;
+
+    #[test]
+    fn should_create_correct_query_param_string() {
+        let mut query_params = QueryParams::new();
+        query_params.insert("q".to_string(), "rust".to_string());
+        query_params.insert("sort".to_string(), "desc".to_string());
+        assert_eq!(query_params.to_string(), "?q=rust&sort=desc");
+
+        // !! The order of parameters in the output string may not be guaranteed due to the use of HashMap. Switch to Vec<(String, String)> perhaps?
+    }
 
     #[test]
     fn should_parse_query_params() {
