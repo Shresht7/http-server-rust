@@ -54,12 +54,20 @@ fn handle_connection(mut stream: net::TcpStream) -> Result<(), io::Error> {
         io::Error::new(io::ErrorKind::InvalidData, "Failed to parse request")
     })?;
 
-    println!("Parsed request: {:#?}", request);
+    println!("Parsed request: {:#?}", &request);
 
-    // Create a simple HTTP response
-    let response = http::Response::default()
-        .header("Content-Type", "text/html")
-        .body("<html><body><h1>Hello, World!</h1></body></html>");
+    // Generate a response based on the request URI
+    let response = match request.uri.path.as_str() {
+        "/" => http::Response::default()
+            .header("Content-Type", "text/html")
+            .body("<html><body><h1>Welcome to the Rust HTTP Server!</h1></body></html>"),
+        "/hello" => http::Response::default()
+            .header("Content-Type", "text/html")
+            .body("<html><body><h1>Hello, World!</h1></body></html>"),
+        _ => http::Response::default()
+            .header("Content-Type", "text/html")
+            .body("<html><body><h1>404 Not Found</h1></body></html>"),
+    };
 
     // Send the response back to the client
     stream.write_all(&response.as_bytes())?;
