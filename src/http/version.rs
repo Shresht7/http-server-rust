@@ -6,7 +6,7 @@
 /// and the status line of [`Response`][crate::http::Response] structs.
 ///
 /// See: https://www.rfc-editor.org/rfc/rfc1945#section-3.1
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Version(u32, u32);
 
 impl Default for Version {
@@ -218,5 +218,16 @@ mod tests {
         let version_str = "1.1";
         let version: Version = version_str.parse().unwrap();
         assert_eq!(version.to_string(), "HTTP/1.1");
+    }
+
+    #[test]
+    fn should_compare_versions() {
+        let version1 = Version(1, 1);
+        let version2 = Version(1, 0);
+        assert!(version1 > version2);
+
+        let version3 = Version(2, 13);
+        let version4 = Version(2, 4);
+        assert!(version3 > version4);
     }
 }
