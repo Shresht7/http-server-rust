@@ -38,6 +38,26 @@ impl Default for Uri {
     }
 }
 
+// Display
+// -------
+
+impl std::fmt::Display for Uri {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut result = self.path.clone();
+
+        if !self.query_params.is_empty() {
+            result.push_str(&self.query_params.to_string());
+        }
+
+        if let Some(fragment) = &self.fragment {
+            result.push('#');
+            result.push_str(fragment);
+        }
+
+        write!(f, "{}", result)
+    }
+}
+
 // FromStr
 // -------
 
@@ -108,6 +128,19 @@ impl std::error::Error for ParseUriError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn should_display_uri() {
+        let uri = Uri {
+            path: "/search".to_string(),
+            query_params: QueryParams::from(vec![
+                ("q".to_string(), "rust".to_string()),
+                ("sort".to_string(), "desc".to_string()),
+            ]),
+            fragment: Some("section-1".to_string()),
+        };
+        assert_eq!(uri.to_string(), "/search?q=rust&sort=desc#section-1");
+    }
 
     #[test]
     fn should_parse_basic_uri() {
