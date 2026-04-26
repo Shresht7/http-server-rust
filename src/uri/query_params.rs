@@ -2,23 +2,60 @@ use std::collections::HashMap;
 
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct QueryParams {
+    ordered_keys: Vec<String>,
     params: HashMap<String, String>,
 }
 
 impl QueryParams {
     pub fn new() -> Self {
         Self {
+            ordered_keys: Vec::new(),
             params: HashMap::new(),
         }
+    }
+
+    pub fn insert(&mut self, key: String, value: String) {
+        if !self.params.contains_key(&key) {
+            self.ordered_keys.push(key.clone());
+        }
+        self.params.insert(key, value);
+    }
+
+    pub fn get(&self, key: &str) -> Option<&String> {
+        self.params.get(key)
+    }
+
+    pub fn remove(&mut self, key: &str) -> Option<String> {
+        if self.params.contains_key(key) {
+            self.ordered_keys.retain(|k| k != key);
+        }
+        self.params.remove(key)
+    }
+}
+
+impl IntoIterator for QueryParams {
+    type Item = (String, String);
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.ordered_keys
+            .into_iter()
+            .filter_map(|key| self.params.get(&key).cloned().map(|value| (key, value)))
+            .collect::<Vec<(String, String)>>()
+            .into_iter()
     }
 }
 
 impl std::fmt::Display for QueryParams {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let result = self
-            .params
+            .ordered_keys
             .iter()
-            .map(|(key, value)| format!("{}={}", key, value))
+            .filter_map(|key| {
+                self.params
+                    .get(key)
+                    .map(|value| format!("{}={}", key, value))
+            })
             .collect::<Vec<String>>()
             .join("&");
         write!(f, "?{}", result)
@@ -39,7 +76,7 @@ impl std::str::FromStr for QueryParams {
         // where each key and value are separated by '='. For example: "key1=value1&key2=value2".
 
         // Instantiating a new HashMap to store the parsed query parameters
-        let mut params = HashMap::new();
+        let mut params = QueryParams::new();
 
         // Split the query string on `&` to get individual key-value pairs
         for param in s.split('&') {
@@ -52,7 +89,7 @@ impl std::str::FromStr for QueryParams {
             }
         }
 
-        Ok(QueryParams { params })
+        Ok(params)
     }
 }
 
@@ -61,12 +98,6 @@ impl std::ops::Deref for QueryParams {
 
     fn deref(&self) -> &Self::Target {
         &self.params
-    }
-}
-
-impl std::ops::DerefMut for QueryParams {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.params
     }
 }
 
@@ -107,8 +138,6 @@ mod tests {
         query_params.insert("q".to_string(), "rust".to_string());
         query_params.insert("sort".to_string(), "desc".to_string());
         assert_eq!(query_params.to_string(), "?q=rust&sort=desc");
-
-        // !! The order of parameters in the output string may not be guaranteed due to the use of HashMap. Switch to Vec<(String, String)> perhaps?
     }
 
     #[test]
