@@ -5,7 +5,7 @@ use crate::http::constants::CRLF;
 // ----
 
 /// Represents the body of an HTTP response, which is the actual content of the response. It can be HTML, JSON, or any other data format.
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Body(String);
 
 impl Body {

@@ -10,9 +10,11 @@
 
 use crate::http;
 use crate::http::constants::CRLF;
+use crate::uri;
 
 use crate::http::headers::ParseHeadersError;
 use crate::http::version::ParseVersionError;
+use crate::uri::ParseUriError;
 
 // ------------
 // REQUEST LINE
@@ -22,7 +24,7 @@ use crate::http::version::ParseVersionError;
 /// Example: `GET /index.html HTTP/1.1`
 pub struct RequestLine {
     method: http::Method,
-    uri: String,
+    uri: uri::Uri,
     version: http::Version,
 }
 
@@ -42,7 +44,9 @@ impl std::str::FromStr for RequestLine {
         let method = http::Method::from(parts[0]);
 
         // URI
-        let uri = parts[1].to_string();
+        let uri = parts[1]
+            .parse()
+            .map_err(|e| ParseRequestLineError::Uri(e))?;
 
         // HTTP version
         let version = http::Version::from_str(parts[2]).map_err(ParseRequestLineError::Version)?;
@@ -61,8 +65,11 @@ impl std::fmt::Display for RequestLine {
     }
 }
 
+#[derive(Debug)]
 pub struct Request {
-    pub request_line: RequestLine,
+    pub method: http::Method,
+    pub uri: uri::Uri,
+    pub version: http::Version,
     pub headers: http::Headers,
     pub body: http::Body,
 }
@@ -96,7 +103,9 @@ impl std::str::FromStr for Request {
         let body = http::Body::new(&body);
 
         Ok(Self {
-            request_line,
+            method: request_line.method,
+            uri: request_line.uri,
+            version: request_line.version,
             headers,
             body,
         })
@@ -138,6 +147,7 @@ impl std::error::Error for ParseRequestError {
 pub enum ParseRequestLineError {
     InvalidFormat(String),
     Version(ParseVersionError),
+    Uri(ParseUriError),
 }
 
 impl std::fmt::Display for ParseRequestLineError {
@@ -149,6 +159,9 @@ impl std::fmt::Display for ParseRequestLineError {
             ParseRequestLineError::Version(e) => {
                 write!(f, "Failed to parse HTTP version: '{}'", e)
             }
+            ParseRequestLineError::Uri(e) => {
+                write!(f, "Failed to parse URI: '{}'", e)
+            }
         }
     }
 }
@@ -157,6 +170,7 @@ impl std::error::Error for ParseRequestLineError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             ParseRequestLineError::Version(e) => Some(e),
+            ParseRequestLineError::Uri(e) => Some(e),
             _ => None,
         }
     }

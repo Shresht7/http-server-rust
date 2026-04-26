@@ -8,7 +8,7 @@ use crate::http::constants::CRLF;
 
 /// Represents the headers of an HTTP response, which are key-value pairs that provide additional information about the response.
 /// Example: `Content-Type: text/html` and `Content-Length: 123`
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Headers(HashMap<String, String>);
 
 impl Headers {

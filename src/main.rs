@@ -54,7 +54,7 @@ fn handle_connection(mut stream: net::TcpStream) -> Result<(), io::Error> {
         io::Error::new(io::ErrorKind::InvalidData, "Failed to parse request")
     })?;
 
-    println!("Parsed request: {}", request.request_line);
+    println!("Parsed request: {:#?}", request);
 
     // Create a simple HTTP response
     let response = http::Response::default()
