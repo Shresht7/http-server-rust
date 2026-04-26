@@ -57,20 +57,41 @@ fn handle_connection(mut stream: net::TcpStream) -> Result<(), io::Error> {
     println!("Parsed request: {:#?}", &request);
 
     // Generate a response based on the request URI
-    let response = match request.uri.path.as_str() {
-        "/" => http::Response::default()
-            .header("Content-Type", "text/html")
-            .body("<html><body><h1>Welcome to the Rust HTTP Server!</h1></body></html>"),
-        "/hello" => http::Response::default()
-            .header("Content-Type", "text/html")
-            .body("<html><body><h1>Hello, World!</h1></body></html>"),
-        _ => http::Response::default()
-            .header("Content-Type", "text/html")
-            .body("<html><body><h1>404 Not Found</h1></body></html>"),
-    };
+    let response = route(&request);
 
     // Send the response back to the client
     stream.write_all(&response.as_bytes())?;
 
     Ok(())
+}
+
+/// Routes the incoming HTTP request to the appropriate handler based on the request URI and generates an HTTP response.
+fn route(request: &http::Request) -> http::Response {
+    match request.uri.path.as_str() {
+        "/" => handle_root(request),
+        "/hello" => handle_hello(request),
+        _ => handle_not_found(request),
+    }
+}
+
+// --------------
+// ROUTE HANLDERS
+// --------------
+
+fn handle_root(request: &http::Request) -> http::Response {
+    http::Response::default()
+        .header("Content-Type", "text/html")
+        .body("<html><body><h1>Welcome to the Rust HTTP Server!</h1></body></html>")
+}
+
+fn handle_hello(request: &http::Request) -> http::Response {
+    http::Response::default()
+        .header("Content-Type", "text/html")
+        .body("<html><body><h1>Hello, World!</h1></body></html>")
+}
+
+fn handle_not_found(request: &http::Request) -> http::Response {
+    http::Response::default()
+        .header("Content-Type", "text/html")
+        .body("<html><body><h1>404 Not Found</h1></body></html>")
 }
