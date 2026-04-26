@@ -1,5 +1,9 @@
 use std::collections::HashMap;
 
+// ------------
+// QUERY PARAMS
+// ------------
+
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct QueryParams {
     ordered_keys: Vec<String>,
@@ -13,7 +17,44 @@ impl QueryParams {
             params: HashMap::new(),
         }
     }
+}
 
+// From
+// ----
+
+impl From<HashMap<String, String>> for QueryParams {
+    fn from(params: HashMap<String, String>) -> Self {
+        let ordered_keys = params.keys().cloned().collect();
+        Self {
+            ordered_keys,
+            params,
+        }
+    }
+}
+
+impl From<Vec<(String, String)>> for QueryParams {
+    fn from(pairs: Vec<(String, String)>) -> Self {
+        let mut params = HashMap::new();
+        let mut ordered_keys = Vec::new();
+
+        for (key, value) in pairs {
+            if !params.contains_key(&key) {
+                ordered_keys.push(key.clone());
+            }
+            params.insert(key, value);
+        }
+
+        Self {
+            ordered_keys,
+            params,
+        }
+    }
+}
+
+// INTERFACE
+// ---------
+
+impl QueryParams {
     pub fn insert(&mut self, key: String, value: String) {
         if !self.params.contains_key(&key) {
             self.ordered_keys.push(key.clone());
@@ -33,6 +74,9 @@ impl QueryParams {
     }
 }
 
+// IntoIterator
+// ------------
+
 impl IntoIterator for QueryParams {
     type Item = (String, String);
     type IntoIter = std::vec::IntoIter<Self::Item>;
@@ -45,6 +89,9 @@ impl IntoIterator for QueryParams {
             .into_iter()
     }
 }
+
+// Display
+// -------
 
 impl std::fmt::Display for QueryParams {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -61,6 +108,9 @@ impl std::fmt::Display for QueryParams {
         write!(f, "?{}", result)
     }
 }
+
+// FromStr
+// -------
 
 impl std::str::FromStr for QueryParams {
     type Err = ParseQueryParamError;
@@ -93,18 +143,6 @@ impl std::str::FromStr for QueryParams {
     }
 }
 
-impl std::ops::Deref for QueryParams {
-    type Target = HashMap<String, String>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.params
-    }
-}
-
-// ------
-// ERRORS
-// ------
-
 #[derive(Debug)]
 pub enum ParseQueryParamError {
     NoKey(String),
@@ -122,6 +160,17 @@ impl std::fmt::Display for ParseQueryParamError {
 
 impl std::error::Error for ParseQueryParamError {}
 
+// Deref
+// -----
+
+impl std::ops::Deref for QueryParams {
+    type Target = HashMap<String, String>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.params
+    }
+}
+
 // -----
 // TESTS
 // -----
@@ -131,6 +180,29 @@ mod tests {
     use std::str::FromStr;
 
     use super::*;
+
+    #[test]
+    fn should_instantiate_from_hashmap() {
+        let mut map = HashMap::new();
+        map.insert("key1".to_string(), "value1".to_string());
+        map.insert("key2".to_string(), "value2".to_string());
+
+        let query_params = QueryParams::from(map);
+        assert_eq!(query_params.get("key1"), Some(&"value1".to_string()));
+        assert_eq!(query_params.get("key2"), Some(&"value2".to_string()));
+    }
+
+    #[test]
+    fn should_instantiate_from_vec() {
+        let pairs = vec![
+            ("key1".to_string(), "value1".to_string()),
+            ("key2".to_string(), "value2".to_string()),
+        ];
+
+        let query_params = QueryParams::from(pairs);
+        assert_eq!(query_params.get("key1"), Some(&"value1".to_string()));
+        assert_eq!(query_params.get("key2"), Some(&"value2".to_string()));
+    }
 
     #[test]
     fn should_create_correct_query_param_string() {
