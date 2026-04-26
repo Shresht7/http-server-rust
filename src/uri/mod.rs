@@ -8,7 +8,7 @@ use query_params::{ParseQueryParamError, QueryParams};
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Uri {
     /// The path to the resource being requested.
-    path: String,
+    pub path: String,
 
     /// The query parameters in the URI, if present. This is a collection of key-value pairs that appear after the '?' in the URI.
     /// For example, in the URI "/search?q=rust&sort=desc", the query parameters would be "q=rust" and "sort=desc".
@@ -16,13 +16,13 @@ pub struct Uri {
     ///
     /// The query parameters are typically used to provide additional information to the server about the request,
     /// such as search terms, filters, or pagination details. They are not part of the path but are included in the URI to convey extra data.
-    query_params: QueryParams,
+    pub query_params: QueryParams,
 
     /// The fragment identifier (the part after '#') in the URI, if present. This is optional and may be `None` if no fragment is specified.
     /// For example, in the URI "/path/to/resource#section1", the fragment would be "section1".
     ///
     /// Note that the fragment is not sent to the server in HTTP requests; it is only used client-side.
-    fragment: Option<String>,
+    pub fragment: Option<String>,
 }
 
 // Default
