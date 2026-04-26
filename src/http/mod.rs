@@ -6,7 +6,6 @@ mod headers;
 mod method;
 mod request;
 mod response;
-mod uri;
 mod version;
 
 pub use body::Body;

@@ -1,4 +1,6 @@
-use std::collections::HashMap;
+mod query_params;
+
+use query_params::{ParseQueryParamError, QueryParams};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Uri {
@@ -42,7 +44,9 @@ impl std::str::FromStr for Uri {
 
             // Parse the query string into key-value pairs and store them in the query_params HashMap
             if !query_string.is_empty() {
-                query_params = query_string.parse::<QueryParams>()?;
+                query_params = query_string
+                    .parse::<QueryParams>()
+                    .map_err(ParseUriError::QueryParam)?;
             }
         }
 
@@ -54,64 +58,17 @@ impl std::str::FromStr for Uri {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct QueryParams {
-    params: HashMap<String, String>,
-}
-
-impl QueryParams {
-    pub fn new() -> Self {
-        Self {
-            params: HashMap::new(),
-        }
-    }
-}
-
-impl std::str::FromStr for QueryParams {
-    type Err = ParseUriError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut params = HashMap::new();
-
-        if !s.is_empty() {
-            for param in s.split('&') {
-                let mut parts = param.splitn(2, '=');
-                if let Some(key) = parts.next() {
-                    let value = parts.next().unwrap_or("");
-                    params.insert(key.to_string(), value.to_string());
-                } else {
-                    return Err(ParseUriError::QueryParamFormat(param.to_string()));
-                }
-            }
-        }
-
-        Ok(QueryParams { params })
-    }
-}
-
-impl std::ops::Deref for QueryParams {
-    type Target = HashMap<String, String>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.params
-    }
-}
-
 #[derive(Debug)]
 pub enum ParseUriError {
     EmptyPath,
-    QueryParamFormat(String),
-    InvalidFormat(String),
+    QueryParam(ParseQueryParamError),
 }
 
 impl std::fmt::Display for ParseUriError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ParseUriError::EmptyPath => write!(f, "Empty URI path"),
-            ParseUriError::QueryParamFormat(s) => {
-                write!(f, "Invalid query parameter format: {}", s)
-            }
-            ParseUriError::InvalidFormat(s) => write!(f, "Invalid URI format: {}", s),
+            ParseUriError::QueryParam(e) => write!(f, "Failed to parse query parameters: {}", e),
         }
     }
 }
@@ -196,15 +153,5 @@ mod tests {
         let result = uri_str.parse::<Uri>();
         assert!(result.is_err());
         assert!(matches!(result.err(), Some(ParseUriError::EmptyPath)));
-    }
-
-    #[test]
-    fn should_parse_query_params() {
-        let query_str = "q=rust&sort=desc&empty=&novalue";
-        let query_params = query_str.parse::<QueryParams>().unwrap();
-        assert_eq!(query_params.get("q"), Some(&"rust".to_string()));
-        assert_eq!(query_params.get("sort"), Some(&"desc".to_string()));
-        assert_eq!(query_params.get("empty"), Some(&"".to_string()));
-        assert_eq!(query_params.get("novalue"), Some(&"".to_string()));
     }
 }
