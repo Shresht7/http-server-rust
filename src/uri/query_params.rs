@@ -66,6 +66,13 @@ impl QueryParams {
         self.params.get(key)
     }
 
+    pub fn set(&mut self, key: String, value: String) {
+        if !self.params.contains_key(&key) {
+            self.ordered_keys.push(key.clone());
+        }
+        self.params.insert(key, value);
+    }
+
     pub fn remove(&mut self, key: &str) -> Option<String> {
         if self.params.contains_key(key) {
             self.ordered_keys.retain(|k| k != key);
@@ -259,5 +266,15 @@ mod tests {
         let query_str = "key=value1&key=value2";
         let query_params = QueryParams::from_str(query_str).unwrap();
         assert_eq!(query_params.get("key"), Some(&"value1".to_string()));
+    }
+
+    #[test]
+    fn should_allow_adding_new_key_value_pairs() {
+        let mut query_params = QueryParams::new();
+        query_params.insert("key1".to_string(), "value1".to_string());
+        query_params.insert("key2".to_string(), "value2".to_string());
+
+        assert_eq!(query_params.get("key1"), Some(&"value1".to_string()));
+        assert_eq!(query_params.get("key2"), Some(&"value2".to_string()));
     }
 }
