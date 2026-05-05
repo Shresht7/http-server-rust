@@ -2,8 +2,7 @@ use std::io::{self, BufRead, Write};
 use std::net;
 use std::process;
 
-mod http;
-mod uri;
+use lib::http;
 
 /// The network address host to listen on
 const ADDRESS_HOST: &str = "127.0.0.1";
