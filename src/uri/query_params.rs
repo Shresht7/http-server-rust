@@ -66,11 +66,12 @@ impl QueryParams {
         self.params.get(key)
     }
 
-    pub fn set(&mut self, key: String, value: String) {
+    pub fn set(&mut self, key: String, value: String) -> &mut Self {
         if !self.params.contains_key(&key) {
             self.ordered_keys.push(key.clone());
         }
         self.params.insert(key, value);
+        self
     }
 
     pub fn remove(&mut self, key: &str) -> Option<String> {
@@ -273,6 +274,17 @@ mod tests {
         let mut query_params = QueryParams::new();
         query_params.insert("key1".to_string(), "value1".to_string());
         query_params.insert("key2".to_string(), "value2".to_string());
+
+        assert_eq!(query_params.get("key1"), Some(&"value1".to_string()));
+        assert_eq!(query_params.get("key2"), Some(&"value2".to_string()));
+    }
+
+    #[test]
+    fn should_allow_chaining_set_calls() {
+        let mut query_params = QueryParams::new();
+        query_params
+            .set("key1".to_string(), "value1".to_string())
+            .set("key2".to_string(), "value2".to_string());
 
         assert_eq!(query_params.get("key1"), Some(&"value1".to_string()));
         assert_eq!(query_params.get("key2"), Some(&"value2".to_string()));
