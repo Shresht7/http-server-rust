@@ -12,6 +12,19 @@ The HTTP Protocol is _stateless_, meaning that each request from a client to a s
 
 The HTTP Protocol is based on a request-response paradigm. A client establishes a connection with a server and sends a request to the server in the form of a request method, URI, protocol version, headers and optional message body. The server processes the request, does whatever it needs to, and responds with a status code, headers and an optional message body.
 
+## URI
+
+A Uniform Resource Identifier (URI) is a unique identifier that refers to a resource on the web.
+
+The most common type of URIs are URLs (Uniform Resource Locators) that specify the location of a resource, such as a document, image, or binary data, on the web.
+
+URIs can also be used to trigger behaviour other than fetching a resource, like opening an email client, or executing JavaScript code. 
+
+
 ## Reference
 
 - [HyperText Transfer Protocol RFC](https://www.rfc-editor.org/rfc/rfc1945)
+- [MDN Web Docs - URI](https://developer.mozilla.org/en-US/docs/Web/URI)
+- [MDN Web Docs - URI Reference](https://developer.mozilla.org/en-US/docs/Web/URI/Reference)
+- [Uniform Resource Identifier RFC](https://datatracker.ietf.org/doc/html/rfc3986)
+- [RFC 1738 - Uniform Resource Locators (URL)](https://www.rfc-editor.org/rfc/rfc1738)
