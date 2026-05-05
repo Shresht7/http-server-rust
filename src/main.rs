@@ -69,6 +69,7 @@ fn route(request: &http::Request) -> http::Response {
     match request.uri.path.as_str() {
         "/" => handle_root(request),
         "/hello" => handle_hello(request),
+        "/json" => handle_json(request),
         _ => handle_not_found(request),
     }
 }
@@ -87,6 +88,24 @@ fn handle_hello(_request: &http::Request) -> http::Response {
     http::Response::default()
         .header("Content-Type", "text/html")
         .body("<html><body><h1>Hello, World!</h1></body></html>")
+}
+
+fn handle_json(request: &http::Request) -> http::Response {
+    return match request.method {
+        http::Method::GET => http::Response::default()
+            .header("Content-Type", "application/json")
+            .body(r#"{"message": "Hello, World!"}"#),
+        http::Method::POST => {
+            let body = request.body.to_string();
+            http::Response::default()
+                .header("Content-Type", "application/json")
+                .body(&format!(r#"{{"received": "{}"}}"#, &body))
+        }
+        _ => http::Response::default()
+            .status(405, "Method Not Allowed")
+            .header("Content-Type", "application/json")
+            .body(r#"{"error": "Method Not Allowed"}"#),
+    };
 }
 
 fn handle_not_found(_request: &http::Request) -> http::Response {
