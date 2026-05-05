@@ -58,8 +58,8 @@ impl QueryParams {
     pub fn insert(&mut self, key: String, value: String) {
         if !self.params.contains_key(&key) {
             self.ordered_keys.push(key.clone());
+            self.params.insert(key, value);
         }
-        self.params.insert(key, value);
     }
 
     pub fn get(&self, key: &str) -> Option<&String> {
@@ -252,5 +252,12 @@ mod tests {
             query_params.get("key"),
             Some(&"value=with=equals".to_string())
         );
+    }
+
+    #[test]
+    fn should_handle_duplicate_keys() {
+        let query_str = "key=value1&key=value2";
+        let query_params = QueryParams::from_str(query_str).unwrap();
+        assert_eq!(query_params.get("key"), Some(&"value1".to_string()));
     }
 }
