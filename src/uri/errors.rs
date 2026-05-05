@@ -4,6 +4,7 @@ use super::query_params::ParseQueryParamError;
 // ERRORS
 // ------
 
+/// Errors that can occur during URI parsing.
 #[derive(Debug)]
 pub enum ParseUriError {
     EmptyPath,

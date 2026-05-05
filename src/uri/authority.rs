@@ -1,4 +1,3 @@
-///
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Authority {
     /// The user information specified in the authority, if present.
