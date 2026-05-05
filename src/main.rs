@@ -74,22 +74,22 @@ fn route(request: &http::Request) -> http::Response {
 }
 
 // --------------
-// ROUTE HANLDERS
+// ROUTE HANDLERS
 // --------------
 
-fn handle_root(request: &http::Request) -> http::Response {
+fn handle_root(_request: &http::Request) -> http::Response {
     http::Response::default()
         .header("Content-Type", "text/html")
         .body("<html><body><h1>Welcome to the Rust HTTP Server!</h1></body></html>")
 }
 
-fn handle_hello(request: &http::Request) -> http::Response {
+fn handle_hello(_request: &http::Request) -> http::Response {
     http::Response::default()
         .header("Content-Type", "text/html")
         .body("<html><body><h1>Hello, World!</h1></body></html>")
 }
 
-fn handle_not_found(request: &http::Request) -> http::Response {
+fn handle_not_found(_request: &http::Request) -> http::Response {
     http::Response::default()
         .header("Content-Type", "text/html")
         .body("<html><body><h1>404 Not Found</h1></body></html>")
