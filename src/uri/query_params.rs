@@ -4,6 +4,26 @@ use std::collections::HashMap;
 // QUERY PARAMS
 // ------------
 
+/// A struct representing the query parameters of a URI.
+/// The `QueryParams` struct provides methods to insert, retrieve, set, and remove query parameters, as well as to parse a query string into key-value pairs.
+/// It maintains the order of keys as they were inserted.
+///
+/// It derefs to a `HashMap<String, String>` for convenient access to the query parameters as a standard map.
+///
+/// # Examples
+///
+/// ```
+/// use lib::uri::QueryParams;
+/// use std::str::FromStr;
+///
+/// let query_str = "q=rust&sort=desc&empty=&novalue";
+/// let query_params = QueryParams::from_str(query_str).unwrap();
+///
+/// assert_eq!(query_params.get("q"), Some(&"rust".to_string()));
+/// assert_eq!(query_params.get("sort"), Some(&"desc".to_string()));
+/// assert_eq!(query_params.get("empty"), Some(&"".to_string()));
+/// assert_eq!(query_params.get("novalue"), Some(&"".to_string()));
+/// ```
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct QueryParams {
     ordered_keys: Vec<String>,

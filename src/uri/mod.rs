@@ -9,6 +9,8 @@ mod scheme;
 pub use absolute::AbsoluteUri;
 pub use relative::RelativeUri;
 
+pub use query_params::QueryParams;
+
 pub use errors::*;
 
 // ---
