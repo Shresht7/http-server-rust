@@ -24,7 +24,7 @@ use crate::uri::ParseUriError;
 /// Example: `GET /index.html HTTP/1.1`
 pub struct RequestLine {
     method: http::Method,
-    uri: uri::Uri,
+    uri: uri::RelativeUri,
     version: http::Version,
 }
 
@@ -68,7 +68,7 @@ impl std::fmt::Display for RequestLine {
 #[derive(Debug)]
 pub struct Request {
     pub method: http::Method,
-    pub uri: uri::Uri,
+    pub uri: uri::RelativeUri,
     pub version: http::Version,
     pub headers: http::Headers,
     pub body: http::Body,
