@@ -1,3 +1,4 @@
+use super::fragment::ParseFragmentError;
 use super::query_params::ParseQueryParamError;
 
 // ------
@@ -9,6 +10,7 @@ use super::query_params::ParseQueryParamError;
 pub enum ParseUriError {
     EmptyPath,
     QueryParam(ParseQueryParamError),
+    Fragment(ParseFragmentError),
 }
 
 impl std::fmt::Display for ParseUriError {
@@ -16,6 +18,7 @@ impl std::fmt::Display for ParseUriError {
         match self {
             ParseUriError::EmptyPath => write!(f, "Empty URI path"),
             ParseUriError::QueryParam(e) => write!(f, "Failed to parse query parameters: {}", e),
+            ParseUriError::Fragment(e) => write!(f, "Failed to parse fragment: {}", e),
         }
     }
 }

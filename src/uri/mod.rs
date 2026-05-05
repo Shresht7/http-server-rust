@@ -3,6 +3,7 @@ mod relative;
 
 mod authority;
 mod errors;
+mod fragment;
 mod query_params;
 mod scheme;
 

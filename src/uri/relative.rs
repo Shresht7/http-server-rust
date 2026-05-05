@@ -1,4 +1,5 @@
 use super::errors::ParseUriError;
+use super::fragment::Fragment;
 use super::query_params::QueryParams;
 
 // -------------
@@ -29,7 +30,7 @@ pub struct RelativeUri {
     /// For example, in the URI "/path/to/resource#section1", the fragment would be "section1".
     ///
     /// Note that the fragment is not sent to the server in HTTP requests; it is only used client-side.
-    pub fragment: Option<String>,
+    pub fragment: Option<Fragment>,
 }
 
 // Display
@@ -44,8 +45,7 @@ impl std::fmt::Display for RelativeUri {
         }
 
         if let Some(fragment) = &self.fragment {
-            result.push('#');
-            result.push_str(fragment);
+            result.push_str(&fragment.to_string());
         }
 
         write!(f, "{}", result)
@@ -69,7 +69,11 @@ impl std::str::FromStr for RelativeUri {
 
         // Check for the presence of a fragment identifier (indicated by '#') and extract it if present
         if let Some(hash_index) = s.find('#') {
-            fragment = Some(s[hash_index + 1..].to_string());
+            fragment = Some(
+                s[hash_index + 1..]
+                    .parse::<Fragment>()
+                    .map_err(ParseUriError::Fragment)?,
+            );
             path = &s[..hash_index];
         }
 
@@ -110,7 +114,7 @@ mod tests {
                 ("q".to_string(), "rust".to_string()),
                 ("sort".to_string(), "desc".to_string()),
             ]),
-            fragment: Some("section-1".to_string()),
+            fragment: Some(Fragment::Anchor("section-1".to_string())),
         };
         assert_eq!(uri.to_string(), "/search?q=rust&sort=desc#section-1");
     }
@@ -149,7 +153,7 @@ mod tests {
         let uri = uri_str.parse::<RelativeUri>().unwrap();
         assert_eq!(uri.path, "/path/to/resource");
         assert!(uri.query_params.is_empty());
-        assert_eq!(uri.fragment, Some("section1".to_string()));
+        assert_eq!(uri.fragment, Some(Fragment::Anchor("section1".to_string())));
     }
 
     #[test]
@@ -158,7 +162,7 @@ mod tests {
         let uri = uri_str.parse::<RelativeUri>().unwrap();
         assert_eq!(uri.path, "/search");
         assert_eq!(uri.query_params.get("q"), Some(&"rust".to_string()));
-        assert_eq!(uri.fragment, Some("results".to_string()));
+        assert_eq!(uri.fragment, Some(Fragment::Anchor("results".to_string())));
     }
 
     #[test]
@@ -176,7 +180,7 @@ mod tests {
         let uri = uri_str.parse::<RelativeUri>().unwrap();
         assert_eq!(uri.path, "/path/to/resource");
         assert!(uri.query_params.is_empty());
-        assert_eq!(uri.fragment, Some("".to_string()));
+        assert_eq!(uri.fragment, Some(Fragment::Anchor("".to_string())));
     }
 
     #[test]
