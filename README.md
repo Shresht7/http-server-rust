@@ -1,6 +1,6 @@
 # `http-server-rust`
 
-A simple HTTP server implemented in Rust. This project serves as a learning exercise to build an HTTP server from scratch and learn Rust.
+A simple HTTP server implemented in Rust. This project serves as a learning exercise to build an HTTP server from scratch and learn Rust using just the standard library.
 
 ## HTTP
 
@@ -27,4 +27,5 @@ URIs can also be used to trigger behaviour other than fetching a resource, like 
 - [MDN Web Docs - URI](https://developer.mozilla.org/en-US/docs/Web/URI)
 - [MDN Web Docs - URI Reference](https://developer.mozilla.org/en-US/docs/Web/URI/Reference)
 - [Uniform Resource Identifier RFC](https://datatracker.ietf.org/doc/html/rfc3986)
+- [RFC 9112 - HTTP/1.1](https://datatracker.ietf.org/doc/html/rfc9112)
 - [RFC 1738 - Uniform Resource Locators (URL)](https://www.rfc-editor.org/rfc/rfc1738)
