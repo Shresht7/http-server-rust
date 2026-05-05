@@ -71,6 +71,7 @@ fn route(request: &http::Request) -> http::Response {
     match request.uri.path.as_str() {
         "/" => handle_root(request),
         "/hello" => handle_hello(request),
+        path if path.starts_with("/echo/") => handle_echo(request),
         "/json" => handle_json(request),
         _ => handle_not_found(request),
     }
@@ -90,6 +91,13 @@ fn handle_hello(_request: &http::Request) -> http::Response {
     http::Response::default()
         .header("Content-Type", "text/html")
         .body("<html><body><h1>Hello, World!</h1></body></html>")
+}
+
+fn handle_echo(request: &http::Request) -> http::Response {
+    let path = request.uri.path.trim_start_matches("/echo/");
+    http::Response::default()
+        .header("Content-Type", "text/plain")
+        .body(path)
 }
 
 fn handle_json(request: &http::Request) -> http::Response {
