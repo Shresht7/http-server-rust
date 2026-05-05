@@ -58,6 +58,8 @@ fn handle_connection(mut stream: net::TcpStream) -> Result<(), io::Error> {
     // Generate a response based on the request URI
     let response = route(&request);
 
+    println!("Sending Response: {:#?}", &response);
+
     // Send the response back to the client
     stream.write_all(&response.as_bytes())?;
 

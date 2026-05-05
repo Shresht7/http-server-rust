@@ -16,6 +16,7 @@ use crate::http::constants::CRLF;
 
 /// Represents the status line of an HTTP response, containing the HTTP version, status code, and reason phrase.
 /// Example: `HTTP/1.1 200 OK`
+#[derive(Debug)]
 pub struct StatusLine {
     version: http::Version,
     status_code: u16,
@@ -64,7 +65,7 @@ impl std::fmt::Display for StatusLine {
 // RESPONSE
 // --------
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Response {
     pub status_line: StatusLine,
     pub headers: http::Headers,
