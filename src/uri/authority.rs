@@ -1,3 +1,4 @@
+///
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Authority {
     /// The user information specified in the authority, if present.
@@ -75,33 +76,58 @@ mod tests {
     fn should_parse_authority() {
         let s = "user:pass@host:8080";
         let authority: Authority = s.into();
-        assert_eq!(authority.user_info, Some("user:pass".to_string()));
-        assert_eq!(authority.host, "host".to_string());
-        assert_eq!(authority.port, Some(8080));
+        assert_eq!(
+            authority,
+            Authority {
+                user_info: Some("user:pass".to_string()),
+                host: "host".to_string(),
+                port: Some(8080),
+            }
+        );
 
         let s = "user:pass@host.com";
         let authority: Authority = s.into();
-        assert_eq!(authority.user_info, Some("user:pass".to_string()));
-        assert_eq!(authority.host, "host.com".to_string());
-        assert_eq!(authority.port, None);
+        assert_eq!(
+            authority,
+            Authority {
+                user_info: Some("user:pass".to_string()),
+                host: "host.com".to_string(),
+                port: None,
+            }
+        );
 
         let s = "host.com:8080";
         let authority: Authority = s.into();
-        assert_eq!(authority.user_info, None);
-        assert_eq!(authority.host, "host.com".to_string());
-        assert_eq!(authority.port, Some(8080));
+        assert_eq!(
+            authority,
+            Authority {
+                user_info: None,
+                host: "host.com".to_string(),
+                port: Some(8080),
+            }
+        );
 
         let s = "example.com";
         let authority: Authority = s.into();
-        assert_eq!(authority.user_info, None);
-        assert_eq!(authority.host, "example.com".to_string());
-        assert_eq!(authority.port, None);
+        assert_eq!(
+            authority,
+            Authority {
+                user_info: None,
+                host: "example.com".to_string(),
+                port: None,
+            }
+        );
 
         let s = "locahost:3000";
         let authority: Authority = s.into();
-        assert_eq!(authority.user_info, None);
-        assert_eq!(authority.host, "locahost".to_string());
-        assert_eq!(authority.port, Some(3000));
+        assert_eq!(
+            authority,
+            Authority {
+                user_info: None,
+                host: "locahost".to_string(),
+                port: Some(3000),
+            }
+        );
     }
 
     #[test]
