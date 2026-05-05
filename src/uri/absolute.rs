@@ -1,3 +1,6 @@
+use crate::uri::RelativeUri;
+use crate::uri::fragment::Fragment;
+
 use super::authority::Authority;
 use super::errors::ParseUriError;
 use super::query_params::QueryParams;
@@ -28,7 +31,7 @@ pub struct AbsoluteUri {
     /// For example, in the URI "/path/to/resource#section1", the fragment would be "section1".
     ///
     /// Note that the fragment is not sent to the server in HTTP requests; it is only used client-side.
-    pub fragment: Option<String>,
+    pub fragment: Option<Fragment>,
 }
 
 // Display
@@ -49,8 +52,7 @@ impl std::fmt::Display for AbsoluteUri {
         }
 
         if let Some(fragment) = &self.fragment {
-            result.push('#');
-            result.push_str(fragment);
+            result.push_str(&fragment.to_string());
         }
 
         write!(f, "{}", result)
@@ -79,34 +81,29 @@ impl std::str::FromStr for AbsoluteUri {
             None
         };
 
-        // Finally, we can parse the path, query parameters, and fragment from the remaining part of the URI string.
-        let path_start = s.find('/').unwrap_or_else(|| s.len());
-        let path_end = s[path_start..]
-            .find(['?', '#'].as_ref())
-            .map(|index| path_start + index)
-            .unwrap_or_else(|| s.len());
-        let path = s[path_start..path_end].to_string();
-
-        let query_params = if let Some(query_start) = s.find('?') {
-            let query_end = s[query_start..]
-                .find('#')
-                .map(|index| query_start + index)
+        // Parse the rest of the URI as a relative URI to extract the path, query parameters, and fragment
+        // Find the start of the authority component first, if it exists, to determine where the relative URI starts
+        let relative_uri_str = if let Some(authority_start) = s.find("//") {
+            // Find the end of the authority component, which is typically indicated by the next '/' after the '//' that starts the authority
+            let authority_end = s[authority_start + 2..]
+                .find('/')
+                .map(|index| authority_start + 2 + index)
                 .unwrap_or_else(|| s.len());
-            QueryParams::from_str(&s[query_start + 1..query_end]).unwrap()
+            // The relative URI starts immediately after the authority component
+            &s[authority_end..]
         } else {
-            QueryParams::new()
+            // If there is no authority component, the relative URI starts immediately after the scheme and the colon
+            &s[scheme.to_string().len() + 1..]
         };
+        let relative_uri = relative_uri_str.parse::<RelativeUri>()?; // Reuse parsing logic from RelativeUri 
 
-        let fragment = s
-            .find('#')
-            .map(|fragment_start| s[fragment_start + 1..].to_string());
-
+        // Finally, we can parse the path, query parameters, and fragment from the relative URI
         Ok(AbsoluteUri {
             scheme,
             authority,
-            path,
-            query_params,
-            fragment,
+            path: relative_uri.path,
+            query_params: relative_uri.query_params,
+            fragment: relative_uri.fragment,
         })
     }
 }
@@ -130,7 +127,7 @@ mod tests {
             }),
             path: "/path".to_string(),
             query_params: QueryParams::from(vec![("query".to_string(), "1".to_string())]),
-            fragment: Some("fragment".to_string()),
+            fragment: Some(Fragment::Anchor("fragment".to_string())),
         };
         assert_eq!(
             uri.to_string(),

@@ -8,13 +8,6 @@ use super::query_params::QueryParams;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RelativeUri {
-    //     /// The URI [`Scheme`] indicating the protocol to be used when accessing the resource.
-    //     pub scheme: Scheme,
-    //
-    //     /// The authority component of the URI, which includes the user information (if present), host, and port.
-    //     /// For example, in the URI "https://user:pass@example.com:8080/path", the authority would be "user:pass@example.com:8080".
-    //     /// Generally, only the host / domain-name is used in this section.
-    //     pub authority: Option<Authority>,
     /// The path to the resource being requested.
     pub path: String,
 
@@ -70,7 +63,7 @@ impl std::str::FromStr for RelativeUri {
         // Check for the presence of a fragment identifier (indicated by '#') and extract it if present
         if let Some(hash_index) = s.find('#') {
             fragment = Some(
-                s[hash_index + 1..]
+                s[hash_index..]
                     .parse::<Fragment>()
                     .map_err(ParseUriError::Fragment)?,
             );

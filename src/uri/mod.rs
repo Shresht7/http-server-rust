@@ -64,6 +64,7 @@ mod tests {
     use super::*;
     use crate::uri::absolute::AbsoluteUri;
     use crate::uri::authority::Authority;
+    use crate::uri::fragment::Fragment;
     use crate::uri::query_params::QueryParams;
     use crate::uri::scheme::Scheme;
 
@@ -82,7 +83,7 @@ mod tests {
                 }),
                 path: "/path".to_string(),
                 query_params: QueryParams::from(vec![("query".to_string(), "value".to_string())]),
-                fragment: Some("fragment".to_string()),
+                fragment: Some(Fragment::Anchor("fragment".to_string())),
             })
         );
 
@@ -99,7 +100,7 @@ mod tests {
                 }),
                 path: "/over/there".to_string(),
                 query_params: QueryParams::from(vec![("name".to_string(), "ferret".to_string())]),
-                fragment: Some("nose".to_string()),
+                fragment: Some(Fragment::Anchor("nose".to_string())),
             })
         );
     }
