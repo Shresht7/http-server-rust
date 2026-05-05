@@ -1,5 +1,7 @@
+mod authority;
 mod query_params;
 mod scheme;
+use authority::Authority;
 use query_params::{ParseQueryParamError, QueryParams};
 use scheme::Scheme;
 
@@ -7,10 +9,17 @@ use scheme::Scheme;
 // URI
 // ---
 
+// TODO: Refactor this into an enum with variants for AbsoluteUri and RelativeUri. This will make my life much easier.
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Uri {
     /// The URI [`Scheme`] indicating the protocol to be used when accessing the resource.
     pub scheme: Scheme,
+
+    /// The authority component of the URI, which includes the user information (if present), host, and port.
+    /// For example, in the URI "https://user:pass@example.com:8080/path", the authority would be "user:pass@example.com:8080".
+    /// Generally, only the host / domain-name is used in this section.
+    pub authority: Option<Authority>,
 
     /// The path to the resource being requested.
     pub path: String,
@@ -28,20 +37,6 @@ pub struct Uri {
     ///
     /// Note that the fragment is not sent to the server in HTTP requests; it is only used client-side.
     pub fragment: Option<String>,
-}
-
-// Default
-// -------
-
-impl Default for Uri {
-    fn default() -> Self {
-        Self {
-            scheme: Scheme::Http,
-            path: "/".to_string(),
-            query_params: QueryParams::new(),
-            fragment: None,
-        }
-    }
 }
 
 // Display
@@ -107,6 +102,7 @@ impl std::str::FromStr for Uri {
 
         Ok(Uri {
             scheme,
+            authority: None, // Authority parsing is not implemented in this version
             path: path.to_string(),
             query_params,
             fragment,
@@ -147,6 +143,7 @@ mod tests {
     fn should_display_uri() {
         let uri = Uri {
             scheme: Scheme::Http,
+            authority: None,
             path: "/search".to_string(),
             query_params: QueryParams::from(vec![
                 ("q".to_string(), "rust".to_string()),
