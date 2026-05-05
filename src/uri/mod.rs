@@ -103,5 +103,16 @@ mod tests {
                 fragment: Some(Fragment::Anchor("nose".to_string())),
             })
         );
+
+        let s = "/relative/path?query=value#fragment";
+        let uri: Uri = s.parse().unwrap();
+        assert_eq!(
+            uri,
+            Uri::Relative(RelativeUri {
+                path: "/relative/path".to_string(),
+                query_params: QueryParams::from(vec![("query".to_string(), "value".to_string())]),
+                fragment: Some(Fragment::Anchor("fragment".to_string())),
+            })
+        );
     }
 }
