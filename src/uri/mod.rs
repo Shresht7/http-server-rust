@@ -1,5 +1,7 @@
 mod query_params;
+mod scheme;
 use query_params::{ParseQueryParamError, QueryParams};
+use scheme::Scheme;
 
 // ---
 // URI
@@ -7,6 +9,9 @@ use query_params::{ParseQueryParamError, QueryParams};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Uri {
+    /// The URI [`Scheme`] indicating the protocol to be used when accessing the resource.
+    pub scheme: Scheme,
+
     /// The path to the resource being requested.
     pub path: String,
 
@@ -31,6 +36,7 @@ pub struct Uri {
 impl Default for Uri {
     fn default() -> Self {
         Self {
+            scheme: Scheme::Http,
             path: "/".to_string(),
             query_params: QueryParams::new(),
             fragment: None,
@@ -73,13 +79,20 @@ impl std::str::FromStr for Uri {
         let mut query_params = QueryParams::new();
         let mut fragment = None;
 
-        // First, check for the presence of a fragment identifier (indicated by '#') and extract it if present
+        // First, extract the scheme from before the first colon (':'), if present. If there is no colon, we assume the scheme is Http by default.
+        let scheme = s
+            .split(':')
+            .next()
+            .map(|scheme| Scheme::from(scheme))
+            .unwrap_or(Scheme::Http);
+
+        // Check for the presence of a fragment identifier (indicated by '#') and extract it if present
         if let Some(hash_index) = s.find('#') {
             fragment = Some(s[hash_index + 1..].to_string());
             path = &s[..hash_index];
         }
 
-        // Next, check for the presence of query parameters (indicated by '?') and extract them if present
+        // Check for the presence of query parameters (indicated by '?') and extract them if present
         if let Some(question_index) = path.find('?') {
             let query_string = &path[question_index + 1..];
             path = &path[..question_index];
@@ -93,6 +106,7 @@ impl std::str::FromStr for Uri {
         }
 
         Ok(Uri {
+            scheme,
             path: path.to_string(),
             query_params,
             fragment,
@@ -132,6 +146,7 @@ mod tests {
     #[test]
     fn should_display_uri() {
         let uri = Uri {
+            scheme: Scheme::Http,
             path: "/search".to_string(),
             query_params: QueryParams::from(vec![
                 ("q".to_string(), "rust".to_string()),
